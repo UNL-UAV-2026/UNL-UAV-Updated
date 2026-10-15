@@ -5,29 +5,30 @@ Edit the CONFIG section, run `python3 make_mission.py`, then in Mission Planner:
 PLAN tab -> Load WP File -> mission.waypoints -> Write WP.
 """
 import math
+import os
 
 # ---------------- CONFIG: edit these ----------------
-HOME_LAT = -35.363262      # SITL default home (CMAC, Canberra)
+HOME_LAT = -35.363262 # SITL default home (Change this to where ever we want to takeoff from)
 HOME_LON = 149.165237
-HOME_ALT = 584.0           # meters MSL; ignored for relative-altitude waypoints
+HOME_ALT = 584.0 # meters MSL; ignored for relative-altitude waypoints
 
-TAKEOFF_ALT = 15           # meters above home
-SPEED = 5                  # ground speed in m/s
+TAKEOFF_ALT = 15 # meters above home
+SPEED = 5 # ground speed in m/s
 
 # Each waypoint is (north_m, east_m, altitude_m) relative to home.
 # Negative north = south, negative east = west.
 WAYPOINTS = [
-    (50,  0, 15),   # 50 m north
-    (50, 50, 15),   # then 50 m east
-    ( 0, 50, 15),   # then back south
-    ( 0,  0, 15),   # then back west, over home
+    (50,  0, 15), # 50 m north
+    (50, 50, 15), # then 50 m east
+    ( 0, 50, 15), # then back south
+    ( 0,  0, 15), # then back west, over home
 ]
-
-OUTPUT = "mission.waypoints"
+# this next line looks complicated but it's just so the mission.waypoints file goes to the missions folder 
+# instead of outside of it, don't worry about it :)
+OUTPUT = os.path.join(os.path.dirname(os.path.abspath(__file__)),"missions","mission.waypoints") 
 # ----------------------------------------------------
 
 M_PER_DEG_LAT = 111_320.0   # roughly constant everywhere
-
 
 def offset_to_latlon(north_m, east_m):
     """Convert a north/east offset in meters from home into lat/lon."""
@@ -42,8 +43,8 @@ CMD_WAYPOINT = 16
 CMD_RTL = 20
 CMD_TAKEOFF = 22
 CMD_CHANGE_SPEED = 178
-FRAME_ABS = 0              # altitude above sea level (used for the home line)
-FRAME_REL = 3              # altitude relative to home
+FRAME_ABS = 0 # altitude above sea level (used for the home line)
+FRAME_REL = 3 # altitude relative to home
 
 
 def item(seq, frame, cmd, p1=0, p2=0, p3=0, p4=0, lat=0.0, lon=0.0, alt=0.0, current=0):
@@ -72,6 +73,7 @@ def build():
 
 
 if __name__ == "__main__":
+    os.makedirs(os.path.dirname(OUTPUT), exist_ok=True) 
     with open(OUTPUT, "w") as f:
         f.write(build())
     print(f"Wrote {OUTPUT} with {len(WAYPOINTS)} waypoints")
